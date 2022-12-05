@@ -1,0 +1,49 @@
+version: '3.2'
+
+name: ha-simple
+
+services:
+
+  homeassistant:
+    #image: homeassistant/home-assistant
+    image: lscr.io/linuxserver/homeassistant:latest
+    container_name: hass
+    restart: unless-stopped
+    environment:
+      PUID: "${PUID}"
+      PGID: "${PGID}"
+    volumes:
+      - hass-config:/config
+      - /etc/localtime:/etc/localtime:ro
+      - /run/dbus:/run/dbus:ro
+    ports:
+      - "8123:8123"
+    networks:
+      - ha
+    #network_mode: host
+
+  mariadb:
+    image: lscr.io/linuxserver/mariadb:latest
+    container_name: mariadb
+    restart: unless-stopped
+    environment:
+      PUID: "${PUID}"
+      PGID: "${PGID}"
+      MYSQL_ROOT_PASSWORD: "${MYSQL_ROOT_PASSWORD}"
+      MYSQL_DATABASE: ha_db
+      MYSQL_USER: homeassistant
+      MYSQL_PASSWORD: "${HA_MYSQL_PASSWORD}"
+    volumes:
+      - mariadb-config:/config
+    networks:
+      - ha
+    ports:
+      - "3306:3306"
+
+networks:
+  ha:
+    driver: bridge
+
+volumes:
+  hass-config:
+  mariadb-config:
