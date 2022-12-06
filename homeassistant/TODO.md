@@ -1,5 +1,5 @@
 # DA SISTEMARE
-* Tratto da [https://github.com/todomd/todo.md](https://github.com/todomd/todo.md) *
+*Tratto da [https://github.com/todomd/todo.md](https://github.com/todomd/todo.md)*
 
 In generale va introdotto un sistema per inizializzare i file di configurazione nei volumi (solo se non esistono).
 
