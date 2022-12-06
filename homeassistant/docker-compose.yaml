@@ -4,16 +4,16 @@ name: ha-simple
 
 services:
 
-  homeassistant:
+  ha:
     #image: homeassistant/home-assistant
     image: lscr.io/linuxserver/homeassistant:latest
-    container_name: hass
+    container_name: homeassistant
     restart: unless-stopped
     environment:
       PUID: "${PUID}"
       PGID: "${PGID}"
     volumes:
-      - hass-config:/config
+      - ha-config:/config
       - /etc/localtime:/etc/localtime:ro
       - /run/dbus:/run/dbus:ro
     ports:
@@ -22,7 +22,7 @@ services:
       - ha
     #network_mode: host
 
-  mariadb:
+  db:
     image: lscr.io/linuxserver/mariadb:latest
     container_name: mariadb
     restart: unless-stopped
@@ -33,17 +33,34 @@ services:
       MYSQL_DATABASE: ha_db
       MYSQL_USER: homeassistant
       MYSQL_PASSWORD: "${HA_MYSQL_PASSWORD}"
+      TZ: "${TZ}"
     volumes:
       - mariadb-config:/config
     networks:
       - ha
+
+  mq:
+    image: eclipse-mosquitto
+    container_name: mosquitto
+    restart: unless-stopped
     ports:
-      - "3306:3306"
+      - "1883:1883"
+    volumes:
+      - "mosquitto-config:/mosquitto/config"
+      - "mosquitto-data:/mosquitto/data"
+      - "mosquitto-log:/mosquitto/log"
+    environment:
+      TZ: "${TZ}"
+    user: "${PUID}:${PGID}"
 
 networks:
   ha:
     driver: bridge
 
 volumes:
-  hass-config:
+  ha-config:
   mariadb-config:
+  mosquitto-config:
+  mosquitto-data:
+  mosquitto-log:
+ 
