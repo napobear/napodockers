@@ -15,11 +15,5 @@ help: ##@other Show this help.
 confirm:
 	@( read -p "$(RED)Are you sure? [y/N]$(RESET): " sure && case "$$sure" in [yY]) true;; *) false;; esac )
 
-mk-upgrade: ##@other Check for updates of mk-lib
-	@MK_VERSION=$(MK_VERSION) MK_REPO=$(MK_REPO) $(MK_DIR)/self-upgrade.sh
-
-mk-version: ##@other Show current version of mk-lib
-	@echo $(MK_VERSION)
-
 check-dependencies:
 	@echo Checking dependencies

@@ -1,3 +1,4 @@
+# From: https://github.com/krom/docker-compose-makefile
 # REQUIRED SECTION
 ROOT_DIR:=$(shell dirname $(realpath $(lastword $(MAKEFILE_LIST))))
 include $(ROOT_DIR)/.mk-lib/common.mk
@@ -8,9 +9,6 @@ include $(ROOT_DIR)/.mk-lib/common.mk
 .PHONY: help build up start down destroy stop restart logs logs-ha ps login-ha login-db db-shell
 
 dependencies: check-dependencies ## Check dependencies
-
-#help:
-#	make -pRrq  -f $(THIS_FILE) : 2>/dev/null | awk -v RS= -F: '/^# File/,/^# Finished Make data base/ {if ($$1 !~ "^[#.]") {print $$1}}' | sort | egrep -v -e '^[^[:alnum:]]' -e '^$@$$'
 
 build:
 	docker compose -f $(DOCKER_COMPOSE_FILE) build $(c)
@@ -34,6 +32,12 @@ restart:## Restart all or c=<name> containers
 	docker compose -f $(DOCKER_COMPOSE_FILE) stop $(c)
 	docker compose -f $(DOCKER_COMPOSE_FILE) up -d $(c)
 
+
+update:	## Restart c=<name> container, c is mandatory
+	docker compose -f $(DOCKER_COMPOSE_FILE) pull
+	docker compose -f $(DOCKER_COMPOSE_FILE) up --build -d
+	docker image prune -f
+
 logs:	## Show logs for all or c=<name> containers
 	docker compose -f $(DOCKER_COMPOSE_FILE) logs --tail=100 -f $(c)
 
@@ -51,3 +55,4 @@ login-db:
 
 db-shell:
 	docker compose -f $(DOCKER_COMPOSE_FILE) exec db mysql --user=homeassistant
+
