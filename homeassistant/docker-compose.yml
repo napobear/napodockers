@@ -1,0 +1,66 @@
+version: '3.2'
+
+name: ha-simple
+
+services:
+
+  ha:
+    #image: homeassistant/home-assistant
+    image: lscr.io/linuxserver/homeassistant:latest
+    container_name: homeassistant
+    restart: unless-stopped
+    environment:
+      PUID: "${PUID}"
+      PGID: "${PGID}"
+    volumes:
+      - ha-config:/config
+      - /etc/localtime:/etc/localtime:ro
+      - /run/dbus:/run/dbus:ro
+    ports:
+      - "8123:8123"
+    networks:
+      - ha
+    #network_mode: host
+
+  db:
+    image: lscr.io/linuxserver/mariadb:latest
+    container_name: mariadb
+    restart: unless-stopped
+    environment:
+      PUID: "${PUID}"
+      PGID: "${PGID}"
+      MYSQL_ROOT_PASSWORD: "${MYSQL_ROOT_PASSWORD}"
+      MYSQL_DATABASE: ha_db
+      MYSQL_USER: homeassistant
+      MYSQL_PASSWORD: "${HA_MYSQL_PASSWORD}"
+      TZ: "${TZ}"
+    volumes:
+      - mariadb-config:/config
+    networks:
+      - ha
+
+  mq:
+    image: eclipse-mosquitto
+    container_name: mosquitto
+    restart: unless-stopped
+    ports:
+      - "1883:1883"
+    volumes:
+      - "mosquitto-config:/mosquitto/config"
+      - "mosquitto-data:/mosquitto/data"
+      - "mosquitto-log:/mosquitto/log"
+    environment:
+      TZ: "${TZ}"
+    user: "${PUID}:${PGID}"
+
+networks:
+  ha:
+    driver: bridge
+
+volumes:
+  ha-config:
+  mariadb-config:
+  mosquitto-config:
+  mosquitto-data:
+  mosquitto-log:
+ 
